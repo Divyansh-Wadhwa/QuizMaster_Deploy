@@ -1,0 +1,31 @@
+<!-- quiz.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="quiz-main-bg">
+        <div class="quiz-side-panel left"></div>
+        <div class="quiz-side-panel right"></div>
+        <div class="quiz-content">
+            <div class="quiz-title" id="quiz-title"></div>
+            <div id="question-container"></div>
+            <button id="prev-btn" style="display:none;">Previous</button>
+            <button id="next-btn" style="display:none;">Next</button>
+            <button id="submit-btn" style="display:none;">Submit</button>
+            <div class="loading-indicator" id="loading-indicator" style="display:none;">Loading...</div>
+        </div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/heartbeat.js"></script>
+    <script src="js/quiz.js"></script>
+</body>
+
+</html>

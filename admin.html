@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Quiz App</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400&display=swap" rel="stylesheet">
+</head>
+
+<body style="
+    background: linear-gradient(120deg, #1e003a 0%, #0f2027 60%, #2c5364 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    font-family: 'Quicksand', Arial, sans-serif;
+    color: #fff;
+    margin: 0;
+    padding: 20px 0 50px 0;
+">
+    <!-- Background shapes for theme continuity -->
+    <svg style="position: absolute; top: 8vh; left: 8vw; width: 90px; z-index: 0; opacity: 0.13; pointer-events: none;"
+        viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="55" fill="#00f2fe" />
+    </svg>
+    <svg style="position: absolute; bottom: 10vh; right: 12vw; width: 70px; z-index: 0; opacity: 0.13; pointer-events: none;"
+        viewBox="0 0 90 90">
+        <polygon points="45,10 85,80 5,80" fill="#ffe066" />
+    </svg>
+    <svg style="position: absolute; top: 18vh; right: 10vw; width: 54px; z-index: 0; opacity: 0.13; pointer-events: none;"
+        viewBox="0 0 54 54">
+        <polygon points="27,6 51,48 3,48" fill="#ffe066" />
+    </svg>
+
+    <style>
+        /* Input focus effects to match host page */
+        input:focus {
+            outline: none !important;
+            background: rgba(255, 255, 255, 0.2) !important;
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.3), inset 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+            transform: scale(1.02) !important;
+        }
+
+        /* Input placeholder styling */
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6) !important;
+        }
+
+        /* Fix input field sizing and overflow issues */
+        input[type="text"] {
+            box-sizing: border-box !important;
+            max-width: 100% !important;
+        }
+
+        /* Question card container fixes */
+        .question-card {
+            overflow: visible !important;
+        }
+
+        .question-card input {
+            box-sizing: border-box !important;
+            width: calc(100% - 4px) !important;
+        }
+
+        /* Button hover effects */
+        button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Custom scrollbar styling to match host page */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.6);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.8);
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Loading animation for better UX */
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        .loading {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+    </style>
+
+    <!-- Starfield canvas -->
+    <canvas id="starfield"
+        style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2; pointer-events: none;"></canvas>
+
+    <div style="
+        max-width: 600px;
+        margin: 20px auto;
+        padding: 40px 30px 30px 30px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        position: relative;
+        z-index: 2;
+    ">
+        <h2 style="
+            text-align: center;
+            color: #00f2fe;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 25px;
+            letter-spacing: 1.2px;
+            text-shadow: 0 0 15px #00f2fe, 0 0 25px #00f2fe;
+        ">Quiz Manager</h2>
+
+        <div id="admin-quizzes-section" style="margin-bottom: 30px;">
+            <h3 style="
+                color: #ffe066;
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 10px #ffe066;
+                text-align: center;
+            ">Your Published Quizzes</h3>
+            <div id="admin-quiz-list" style="
+                max-height: 400px;
+                overflow-y: auto;
+                padding-right: 8px;
+            "></div>
+        </div>
+        <div id="participants-section" style="display:none; margin-bottom: 30px;">
+            <h3 style="
+                color: #ffe066;
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 10px #ffe066;
+                text-align: center;
+                line-height: 1.4;
+            ">Participants for Quiz:</h3>
+            <ul id="participants-list" style="
+                list-style: none;
+                padding: 0;
+                margin: 0 0 20px 0;
+                max-height: 300px;
+                overflow-y: auto;
+                padding-right: 8px;
+            "></ul>
+            <button onclick="hideParticipants()" style="
+                background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+                color: #fff;
+                font-size: 1rem;
+                font-weight: 700;
+                border: none;
+                border-radius: 12px;
+                padding: 14px 0;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-bottom: 12px;
+                width: 100%;
+                max-width: 300px;
+                letter-spacing: 0.5px;
+                box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            ">Back</button>
+        </div>
+
+        <div id="admin-questions-section" style="display:none; margin-bottom: 30px;">
+            <h3 id="questions-title" style="
+                color: #ffe066;
+                font-size: 1.3rem;
+                font-weight: 700;
+                margin-bottom: 20px;
+                letter-spacing: 0.5px;
+                text-shadow: 0 0 10px #ffe066;
+                text-align: center;
+            ">Questions</h3>
+            <div id="admin-question-list" style="
+                max-height: 400px;
+                overflow-y: auto;
+                padding-right: 8px;
+                margin-bottom: 20px;
+            "></div>
+
+            <!-- Add Question and Delete Quiz buttons for editing mode -->
+            <div style="display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;">
+                <button id="add-question-btn" style="
+                    display: none;
+                    background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+                    color: #fff;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 14px 20px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+                ">➕ Add Question</button>
+                <button id="delete-entire-quiz-btn" style="
+                    display: none;
+                    background: linear-gradient(90deg, #ff6b6b 0%, #ee5a52 100%);
+                    color: #fff;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    border: none;
+                    border-radius: 12px;
+                    padding: 14px 20px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    letter-spacing: 0.5px;
+                    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+                ">🗑️ Delete Entire Quiz</button>
+            </div>
+        </div>
+        <button onclick="window.location.href='dashboard.html'" style="
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 14px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto 0 auto;
+            width: 100%;
+            max-width: 300px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            display: block;
+        ">Back to Dashboard</button>
+    </div>
+
+    <!-- Scroll to top button -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()" style="
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        display: none;
+        z-index: 1000;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+    " title="Scroll to top">
+        ↑
+    </button>
+
+    <script src="js/config.js"></script>
+    <script src="js/host-utils.js"></script>
+    <script src="js/admin.js"></script>
+
+    <!-- Starfield animation script -->
+    <script>
+        // Starfield animation
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Star properties
+        const stars = [];
+        const numStars = 100;
+
+        // Initialize stars
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 1.5,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                alpha: Math.random() * 0.8 + 0.2
+            });
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                // Update position
+                star.x += star.vx;
+                star.y += star.vy;
+
+                // Wrap around edges
+                if (star.x < 0) star.x = canvas.width;
+                if (star.x > canvas.width) star.x = 0;
+                if (star.y < 0) star.y = canvas.height;
+                if (star.y > canvas.height) star.y = 0;
+
+                // Draw star
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(79, 140, 255, ${star.alpha})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+
+</html>

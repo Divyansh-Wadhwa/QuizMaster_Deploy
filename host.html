@@ -1,0 +1,533 @@
+<!-- host.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Host Quiz - Quiz App</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            /* Only hide horizontal scroll */
+            overflow-y: auto;
+            /* Allow vertical scrolling */
+        }
+
+        body {
+            background: linear-gradient(120deg, #1e003a 0%, #0f2027 60%, #2c5364 100%);
+            background-attachment: fixed;
+            /* Keep background fixed during scroll */
+            font-family: 'Quicksand', Arial, sans-serif;
+            color: #fff;
+            padding-bottom: 50px;
+            /* Add bottom padding for better scrolling experience */
+        }
+
+        .host-bg-obj {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.13;
+            pointer-events: none;
+        }
+
+        .host-center {
+            position: relative;
+            /* Changed from absolute */
+            margin: 50px auto;
+            /* Center with margins instead of absolute positioning */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 540px;
+            min-height: calc(100vh - 100px);
+            /* Ensure minimum height */
+        }
+
+        .host-title {
+            font-size: 2.7rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 18px #00f2fe, 0 0 32px #4f8cff;
+            margin-bottom: 32px;
+            text-align: center;
+        }
+
+        .host-label {
+            font-size: 1.18rem;
+            font-weight: 700;
+            color: #ffe066;
+            margin-bottom: 12px;
+            letter-spacing: 1px;
+            align-self: flex-start;
+        }
+
+        .host-input,
+        .host-center input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1.1rem;
+            background: #232b3a;
+            color: #fff;
+            box-shadow: 0 1.5px 0 #00f2fe44;
+            margin-bottom: 18px;
+        }
+
+        .host-btn,
+        .host-center button,
+        .host-center input[type="submit"] {
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: #fff;
+            font-size: 1.18rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 14px;
+            padding: 16px 0;
+            cursor: pointer;
+            box-shadow: 0 2px 18px rgba(0, 242, 254, 0.18);
+            transition: background 0.2s, transform 0.13s, box-shadow 0.13s;
+            letter-spacing: 1px;
+            width: 100%;
+            margin-bottom: 18px;
+            max-width: 540px;
+        }
+
+        .host-btn:last-child {
+            margin-bottom: 0;
+        }
+
+        .host-btn:hover,
+        .host-btn:focus,
+        .host-center button:hover,
+        .host-center button:focus {
+            background: linear-gradient(90deg, #4f8cff 0%, #00f2fe 100%);
+            transform: translateY(-2px) scale(1.06) rotate(-1deg);
+            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.22);
+        }
+
+        .host-question-section {
+            width: 100%;
+            margin-bottom: 18px;
+            max-height: none;
+            /* Remove any height restrictions */
+        }
+
+        .host-center form {
+            width: 100%;
+        }
+
+        /* Improved question block styling */
+        .question-block {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .question-block:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Add smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.6);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 242, 254, 0.8);
+        }
+
+        /* Scroll to top button */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+            display: none;
+            z-index: 1000;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
+        }
+
+        .scroll-to-top.show {
+            display: block;
+        }
+
+        /* Floating action bar */
+        .floating-actions {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 10px 15px;
+            display: none;
+            gap: 10px;
+            align-items: center;
+            z-index: 999;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .floating-actions.show {
+            display: flex;
+        }
+
+        .floating-btn {
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .floating-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .floating-btn.danger {
+            background: linear-gradient(90deg, #ff6b6b 0%, #ee5a52 100%);
+        }
+
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .host-center {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .floating-actions {
+                flex-direction: column;
+                gap: 5px;
+                padding: 8px;
+            }
+
+            .floating-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        .host-back-btn {
+            margin-top: 18px;
+            background: none;
+            border: 2px solid #00f2fe;
+            color: #00f2fe;
+            border-radius: 8px;
+            padding: 10px 32px;
+            font-size: 1.08rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.18s, color 0.18s;
+            max-width: 540px;
+            width: 100%;
+        }
+
+        .host-back-btn:hover,
+        .host-back-btn:focus {
+            background: #00f2fe;
+            color: #1e003a;
+        }
+
+        .host-label {
+            display: block;
+            color: #ffe066;
+            font-weight: 700;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            text-shadow: 0 0 8px rgba(255, 224, 102, 0.4);
+        }
+
+        .host-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            margin-bottom: 18px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .host-input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 3px rgba(0, 242, 254, 0.3), inset 0 2px 8px rgba(0, 0, 0, 0.15);
+            transform: scale(1.02);
+        }
+
+        .host-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .quiz-info-display {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .quiz-info-display h3 {
+            margin: 0;
+            color: #00f2fe;
+            font-size: 1.3rem;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .quiz-info-display p {
+            margin: 5px 0 0 0;
+            color: #ffe066;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(255, 224, 102, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Subtle background shapes for theme continuity -->
+    <svg class="host-bg-obj" style="top:8vh; left:8vw; width:90px;" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="55" fill="#00f2fe" />
+    </svg>
+    <svg class="host-bg-obj" style="bottom:10vh; right:12vw; width:70px;" viewBox="0 0 90 90">
+        <polygon points="45,10 85,80 5,80" fill="#ffe066" />
+    </svg>
+    <svg class="host-bg-obj" style="top:18vh; right:10vw; width:54px;" viewBox="0 0 54 54">
+        <polygon points="27,6 51,48 3,48" fill="#ffe066" />
+    </svg>
+    <canvas id="starfield"
+        style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;"></canvas>
+    <div class="host-center">
+        <div class="host-title">Host a New Quiz</div>
+        <div id="quiz-setup-section" style="width:100%;">
+            <label class="host-label">Quiz Name:
+                <input type="text" id="quiz-name" class="host-input" placeholder="Enter quiz name..." required>
+            </label>
+            <div style="margin-bottom: 18px;">
+                <label class="host-label">Quiz ID (Auto-generated):</label>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <input type="text" id="quiz-id" class="host-input" readonly
+                        style="background: rgba(255,255,255,0.1); cursor: not-allowed;">
+                    <button type="button" class="host-btn" id="generate-id-btn"
+                        style="max-width: 150px; margin-bottom: 0; padding: 12px;">Generate ID</button>
+                </div>
+            </div>
+            <button class="host-btn" id="start-questions-btn">Start Adding Questions</button>
+        </div>
+        <form id="quiz-form" style="display:none;width:100%;">
+            <div id="questions-section" class="host-question-section">
+                <!-- Questions will be added here -->
+            </div>
+            <button type="button" class="host-btn" id="add-question-btn">Add Question</button><br><br>
+            <button type="submit" class="host-btn">Submit Quiz</button>
+        </form>
+        <button class="host-back-btn" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+    </div>
+
+    <!-- Scroll to top button -->
+    <button class="scroll-to-top" id="scrollToTop" onclick="scrollToTop()" title="Scroll to top">
+        ↑
+    </button>
+
+    <!-- Floating action bar -->
+    <div class="floating-actions" id="floatingActions">
+        <button class="floating-btn" onclick="document.getElementById('add-question-btn').click()">
+            + Add Question
+        </button>
+        <button class="floating-btn" onclick="scrollToTop()">
+            ↑ Top
+        </button>
+        <button class="floating-btn danger" onclick="scrollToBottom()">
+            ↓ Submit
+        </button>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/host-utils.js"></script>
+    <script src="js/host.js"></script>
+    <script>
+        // Starfield animation for host page
+        const starCanvas = document.getElementById('starfield');
+        if (starCanvas) {
+            const ctx = starCanvas.getContext('2d');
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            starCanvas.width = w;
+            starCanvas.height = h;
+            let stars = [];
+            for (let i = 0; i < 90; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    r: Math.random() * 1.2 + 0.3,
+                    d: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function drawStars() {
+                ctx.clearRect(0, 0, w, h);
+                ctx.save();
+                ctx.globalAlpha = 0.85;
+                for (let s of stars) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#fff';
+                    ctx.shadowColor = '#00f2fe';
+                    ctx.shadowBlur = 8;
+                    ctx.fill();
+                }
+                ctx.restore();
+            }
+
+            function animateStars() {
+                for (let s of stars) {
+                    s.y += s.d;
+                    if (s.y > h) {
+                        s.y = 0;
+                        s.x = Math.random() * w;
+                    }
+                }
+                drawStars();
+                requestAnimationFrame(animateStars);
+            }
+            window.addEventListener('resize', () => {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                starCanvas.width = w;
+                starCanvas.height = h;
+            });
+            animateStars();
+        }
+
+        // Scroll to top functionality
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show/hide scroll to top button and floating actions
+        window.addEventListener('scroll', function () {
+            const scrollToTopBtn = document.getElementById('scrollToTop');
+            const floatingActions = document.getElementById('floatingActions');
+            const quizForm = document.getElementById('quiz-form');
+
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('show');
+                // Only show floating actions when quiz form is visible
+                if (quizForm && quizForm.style.display !== 'none') {
+                    floatingActions.classList.add('show');
+                }
+            } else {
+                scrollToTopBtn.classList.remove('show');
+                floatingActions.classList.remove('show');
+            }
+        });
+
+        // Scroll to bottom (submit button)
+        function scrollToBottom() {
+            const submitBtn = document.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } else {
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        }
+
+        // Smooth scroll to newly added questions
+        function scrollToNewQuestion() {
+            setTimeout(() => {
+                const questionBlocks = document.querySelectorAll('.question-block');
+                if (questionBlocks.length > 0) {
+                    const lastQuestion = questionBlocks[questionBlocks.length - 1];
+                    lastQuestion.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }
+            }, 100);
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Ctrl/Cmd + Enter to add new question
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                const addBtn = document.getElementById('add-question-btn');
+                if (addBtn && addBtn.style.display !== 'none') {
+                    addBtn.click();
+                }
+            }
+
+            // Escape to scroll to top
+            if (e.key === 'Escape') {
+                scrollToTop();
+            }
+        });
+    </script>
+</body>
+
+</html>

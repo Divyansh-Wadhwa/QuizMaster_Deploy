@@ -1,0 +1,468 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/center-landing.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400&display=swap" rel="stylesheet">
+    <style>
+        html,
+        body {
+            height: 100vh;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Quicksand', Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(120deg, #1e003a 0%, #0f2027 60%, #2c5364 100%);
+            overflow-x: hidden;
+        }
+
+        .game-bg-obj {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.92;
+        }
+
+        .game-obj-left {
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scale(1.1);
+            width: 180px;
+            filter: drop-shadow(0 0 24px #00f2fecc);
+        }
+
+        .game-obj-right {
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%) scale(1.1);
+            width: 180px;
+            filter: drop-shadow(0 0 24px #ff00c8cc);
+        }
+
+        .center-typing {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .typing-title {
+            font-size: 6.2rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2.5px;
+            text-shadow: 0 0 18px #00f2fe, 0 0 32px #4f8cff;
+            font-family: 'Quicksand', Arial, sans-serif;
+            margin-bottom: 18px;
+            min-height: 6.5rem;
+        }
+
+        .typing-cursor {
+            display: inline-block;
+            width: 2.5ch;
+            color: #ff00c8;
+            font-weight: 900;
+            font-size: 5.2rem;
+            animation: blink 0.8s steps(1) infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        .cta-btn {
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: #fff;
+            font-size: 1.22rem;
+            font-weight: 800;
+            border: none;
+            border-radius: 14px;
+            padding: 18px 54px;
+            margin-top: 32px;
+            cursor: pointer;
+            box-shadow: 0 2px 18px rgba(0, 242, 254, 0.18);
+            transition: background 0.2s, transform 0.13s, box-shadow 0.13s;
+            letter-spacing: 1px;
+        }
+
+        .cta-btn:hover,
+        .cta-btn:focus {
+            background: linear-gradient(90deg, #4f8cff 0%, #00f2fe 100%);
+            transform: translateY(-2px) scale(1.09) rotate(-2deg);
+            box-shadow: 0 8px 32px rgba(0, 242, 254, 0.22);
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            color: #eaf4ff;
+            font-size: 1.08rem;
+            text-align: center;
+            text-shadow: 0 2px 8px #00f2fecc;
+            z-index: 2;
+        }
+
+        /* Modal styles */
+        .modal-bg {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(44, 62, 80, 0.18);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-box {
+            background: #181f2a;
+            border-radius: 18px;
+            box-shadow: 0 4px 24px rgba(0, 195, 255, 0.13);
+            padding: 38px 44px 32px 44px;
+            max-width: 380px;
+            width: 95vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 18px;
+            font-size: 1.5rem;
+            color: #00c3ff;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 18px;
+            text-align: center;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+            border-radius: 7px;
+            border: 1px solid #00c3ff;
+            font-size: 1.08rem;
+            background: #232e43;
+            color: #fff;
+        }
+
+        .modal-btn {
+            background: linear-gradient(90deg, #00c3ff 0%, #ff00c8 100%);
+            color: #fff;
+            font-size: 1.08rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 32px;
+            margin-top: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 195, 255, 0.13);
+            transition: background 0.2s, transform 0.13s, box-shadow 0.13s;
+        }
+
+        .modal-btn:hover,
+        .modal-btn:focus {
+            background: linear-gradient(90deg, #ff00c8 0%, #00c3ff 100%);
+            transform: translateY(-2px) scale(1.06);
+            box-shadow: 0 6px 18px rgba(0, 195, 255, 0.18);
+        }
+
+        .modal-link-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, #00f2fe 0%, #4f8cff 100%);
+            color: #fff !important;
+            font-weight: 700;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            padding: 4px 18px;
+            margin-left: 8px;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(0, 242, 254, 0.13);
+            transition: background 0.18s, transform 0.13s, box-shadow 0.13s;
+        }
+
+        .modal-link-btn:hover,
+        .modal-link-btn:focus {
+            background: linear-gradient(90deg, #4f8cff 0%, #00f2fe 100%);
+            color: #fff !important;
+            transform: translateY(-1px) scale(1.07);
+            box-shadow: 0 4px 16px rgba(0, 242, 254, 0.18);
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- SVG geometric shapes for extra flair -->
+    <svg class="game-bg-obj" style="top:30vh; left:7vw; width:38px;" viewBox="0 0 60 60">
+        <polygon points="30,5 55,55 5,55" fill="#00f2fe" opacity="0.13" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:22vh; right:8vw; width:32px;" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="25" fill="#ff00c8" opacity="0.13" />
+    </svg>
+    <svg class="game-bg-obj" style="top:10vh; left:40vw; width:28px;" viewBox="0 0 60 60">
+        <rect x="10" y="10" width="40" height="40" rx="12" fill="#ffe066" opacity="0.13" />
+    </svg>
+    <!-- Large translucent background shapes -->
+    <svg class="game-bg-obj" style="top:2vh; left:10vw; width:80px; z-index:-1;" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r="80" fill="#00f2fe" opacity="0.07" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:4vh; right:12vw; width:60px; z-index:-1;" viewBox="0 0 140 140">
+        <rect x="10" y="10" width="120" height="120" rx="40" fill="#ff00c8" opacity="0.07" />
+    </svg>
+    <svg class="game-bg-obj" style="top:40vh; left:50vw; width:54px; z-index:-1;" viewBox="0 0 120 120">
+        <polygon points="60,10 110,110 10,110" fill="#ffe066" opacity="0.07" />
+    </svg>
+    <!-- SVG/abstract shapes for a modern, immersive look -->
+    <svg class="game-bg-obj" style="top:8vh; left:6vw; width:120px; opacity:0.18; z-index:0;" viewBox="0 0 120 120">
+        <circle cx="60" cy="60" r="55" fill="#00f2fe" />
+        <circle cx="60" cy="60" r="35" fill="#fff" opacity="0.18" />
+    </svg>
+    <svg class="game-bg-obj" style="top:16vh; right:8vw; width:100px; opacity:0.15; z-index:0;" viewBox="0 0 100 100">
+        <rect x="10" y="10" width="80" height="80" rx="30" fill="#ff00c8" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:10vh; left:18vw; width:90px; opacity:0.13; z-index:0;" viewBox="0 0 90 90">
+        <polygon points="45,10 85,80 5,80" fill="#ffe066" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:8vh; right:16vw; width:70px; opacity:0.13; z-index:0;" viewBox="0 0 110 110">
+        <ellipse cx="55" cy="55" rx="50" ry="35" fill="#4f8cff" />
+    </svg>
+    <!-- New left and right objects -->
+    <svg class="game-bg-obj" style="top:32vh; left:2vw; width:60px; opacity:0.16; z-index:0;" viewBox="0 0 60 60">
+        <rect x="8" y="8" width="44" height="44" rx="18" fill="#baffc9" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:18vh; left:4vw; width:48px; opacity:0.14; z-index:0;" viewBox="0 0 48 48">
+        <ellipse cx="24" cy="24" rx="20" ry="12" fill="#ff00c8" />
+    </svg>
+    <svg class="game-bg-obj" style="top:24vh; right:4vw; width:54px; opacity:0.15; z-index:0;" viewBox="0 0 54 54">
+        <polygon points="27,6 51,48 3,48" fill="#ffe066" />
+    </svg>
+    <svg class="game-bg-obj" style="bottom:12vh; right:2vw; width:44px; opacity:0.13; z-index:0;" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="#00f2fe" />
+    </svg>
+    <!-- Only new accent emojis -->
+    <div class="game-bg-obj"
+        style="top:22vh; left:32vw; width:54px; filter:drop-shadow(0 0 10px #ffe066cc); font-size: 54px; display: flex; align-items: center; justify-content: center;">
+        ✨
+    </div>
+    <img class="game-bg-obj" style="top:32vh; right:28vw; width:54px; filter:drop-shadow(0 0 10px #ff00c8cc);"
+        src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f680.png" alt="Rocket" />
+    <!-- Big emoji left (bullseye) and right (globe), larger and not too close to sides -->
+    <img class="game-bg-obj" style="top:34vh; left:2vw; width:160px; filter:drop-shadow(0 0 24px #00f2fecc);"
+        src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3af.png" alt="Bullseye" />
+    <img class="game-bg-obj" style="top:34vh; right:2vw; width:160px; filter:drop-shadow(0 0 24px #4f8cffcc);"
+        src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f30e.png" alt="Globe" />
+    <!-- Animated starfield canvas -->
+    <canvas id="starfield"
+        style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-2;pointer-events:none;"></canvas>
+    <!-- Center typing effect -->
+    <div class="center-typing">
+        <div class="typing-title" id="typing-title" style="font-size:5rem;">QuizMaster</div>
+        <div style="display:flex;align-items:center;min-height:2.5rem;">
+            <span id="quiz-line" class="landing-text-line"
+                style="color:#ffe066;font-size:2.1rem;font-weight:700;text-shadow:0 2px 8px #2c5364;min-height:2.5rem;line-height:1;"></span>
+        </div>
+        <button class="cta-btn" onclick="openModal()">Get Started</button>
+    </div>
+    <!-- Modal for login/register -->
+    <div class="modal-bg" id="modal-bg">
+        <div class="modal-box">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div class="modal-title" id="modal-title">Sign In to Continue</div>
+            <form id="login-form">
+                <input class="modal-input" type="text" id="login-username" placeholder="Username" required>
+                <input class="modal-input" type="password" id="login-password" placeholder="Password" required>
+                <button class="modal-btn" type="submit">Login</button>
+                <div style="margin: 10px 0; color: #b0b8c1;">or <a href="#" class="modal-link-btn"
+                        onclick="showRegister();return false;">Register</a>
+                </div>
+            </form>
+            <form id="register-form" style="display:none;">
+                <input class="modal-input" type="text" id="register-username" placeholder="Username" required>
+                <input class="modal-input" type="email" id="register-email" placeholder="Email" required>
+                <input class="modal-input" type="password" id="register-password" placeholder="Password" required>
+                <button class="modal-btn" type="submit">Register</button>
+                <div style="margin: 10px 0; color: #b0b8c1;">or <a href="#" class="modal-link-btn"
+                        onclick="showLogin();return false;">Login</a>
+                </div>
+            </form>
+            <div id="error" style="color:#ff4d4f; margin-top:8px; min-height:22px;"></div>
+        </div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function openModal() {
+            document.getElementById('modal-bg').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('modal-bg').style.display = 'none';
+        }
+        // Typing effect for QuizMaster and random quiz lines with cursor as part of text
+        const text = "QuizMaster";
+        const quizLines = [
+            "Test your knowledge!",
+            "Compete with friends!",
+            "Challenge your mind!",
+            "Level up your skills!",
+            "Quiz. Play. Win!",
+            "Are you a quiz champion?",
+            "Beat the leaderboard!"
+        ];
+        let i = 0;
+        let typingDone = false;
+        function typeTitle() {
+            if (i <= text.length) {
+                document.getElementById('typing-title').textContent = text.slice(0, i);
+                i++;
+                setTimeout(typeTitle, 120);
+            } else {
+                typingDone = true;
+                typeQuizLine();
+            }
+        }
+        let quizLineIdx = 0;
+        let cursorVisible = true;
+        function typeQuizLine() {
+            const line = quizLines[quizLineIdx];
+            let quizLineChar = 0;
+            const el = document.getElementById('quiz-line');
+            function typeChar() {
+                if (quizLineChar <= line.length) {
+                    el.innerHTML = '<span>' + line.slice(0, quizLineChar) + '<span class="typing-cursor" style="font-size:2.1rem;font-weight:700;line-height:1;display:inline-block;animation:blink 0.8s steps(1) infinite;">|</span></span>';
+                    quizLineChar++;
+                    setTimeout(typeChar, 60);
+                } else {
+                    // Remove cursor after a pause, then go to next line
+                    setTimeout(() => {
+                        el.innerHTML = '<span>' + line + '</span>';
+                        setTimeout(() => {
+                            quizLineIdx = (quizLineIdx + 1) % quizLines.length;
+                            typeQuizLine();
+                        }, 1200);
+                    }, 900);
+                }
+            }
+            typeChar();
+        }
+        typeTitle();
+        // Starfield animation
+        const starCanvas = document.getElementById('starfield');
+        if (starCanvas) {
+            const ctx = starCanvas.getContext('2d');
+            let w = window.innerWidth;
+            let h = window.innerHeight;
+            starCanvas.width = w;
+            starCanvas.height = h;
+            // Stars
+            let stars = [];
+            for (let i = 0; i < 120; i++) {
+                stars.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    r: Math.random() * 1.2 + 0.3,
+                    d: Math.random() * 0.5 + 0.2,
+                    tw: Math.random() * 2 * Math.PI
+                });
+            }
+            // Planets (galaxy effect) at various locations
+            const planetConfigs = [
+                { baseX: w * 0.18, baseY: h * 0.22, r: 18, color: '#ffe066', speed: 0.012, phase: 0 },
+                { baseX: w * 0.5, baseY: h * 0.5, r: 13, color: '#00f2fe', speed: 0.018, phase: 1 },
+                { baseX: w * 0.82, baseY: h * 0.68, r: 10, color: '#ff4d4f', speed: 0.015, phase: 2 },
+                { baseX: w * 0.3, baseY: h * 0.7, r: 8, color: '#baffc9', speed: 0.014, phase: 2.5 },
+                { baseX: w * 0.7, baseY: h * 0.3, r: 11, color: '#4f8cff', speed: 0.013, phase: 1.7 }
+            ];
+            let planets = planetConfigs.map(p => ({ ...p, angle: p.phase }));
+            function drawGalaxy() {
+                ctx.clearRect(0, 0, w, h);
+                // Draw stars (twinkle and fall)
+                ctx.save();
+                ctx.globalAlpha = 0.85;
+                for (let s of stars) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = '#fff';
+                    ctx.shadowColor = '#00f2fe';
+                    ctx.shadowBlur = 8;
+                    ctx.globalAlpha = 0.6 + 0.4 * Math.sin(Date.now() * 0.002 + s.tw);
+                    ctx.fill();
+                }
+                ctx.restore();
+                // Animate stars falling
+                for (let s of stars) {
+                    s.y += s.d;
+                    if (s.y > h) {
+                        s.y = 0;
+                        s.x = Math.random() * w;
+                    }
+                }
+                // Draw planets orbiting in ellipses at various locations
+                for (const p of planets) {
+                    const orbitR = 28 + p.r * 2;
+                    const px = p.baseX + Math.cos(p.angle) * orbitR;
+                    const py = p.baseY + Math.sin(p.angle) * (orbitR * 0.5);
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.arc(px, py, p.r, 0, 2 * Math.PI);
+                    ctx.fillStyle = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur = 18;
+                    ctx.globalAlpha = 0.45;
+                    ctx.fill();
+                    ctx.restore();
+                    p.angle += p.speed;
+                }
+                requestAnimationFrame(drawGalaxy);
+            }
+            window.addEventListener('resize', () => {
+                w = window.innerWidth;
+                h = window.innerHeight;
+                starCanvas.width = w;
+                starCanvas.height = h;
+                // Reposition planets
+                planetConfigs[0].baseX = w * 0.18; planetConfigs[0].baseY = h * 0.22;
+                planetConfigs[1].baseX = w * 0.5; planetConfigs[1].baseY = h * 0.5;
+                planetConfigs[2].baseX = w * 0.82; planetConfigs[2].baseY = h * 0.68;
+                planetConfigs[3].baseX = w * 0.3; planetConfigs[3].baseY = h * 0.7;
+                planetConfigs[4].baseX = w * 0.7; planetConfigs[4].baseY = h * 0.3;
+            });
+            drawGalaxy();
+        }
+    </script>
+</body>
+
+</html>

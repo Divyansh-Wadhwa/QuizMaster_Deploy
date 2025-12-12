@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - QuizMaster</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:700,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border-right: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding: 0 1.5rem 2rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header h1 {
+            color: #4f8cff;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-header p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .nav-menu {
+            padding: 2rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: rgba(79, 140, 255, 0.1);
+            border-left-color: #4f8cff;
+        }
+
+        .nav-item.active {
+            background: rgba(79, 140, 255, 0.15);
+            border-left-color: #4f8cff;
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            margin-right: 1rem;
+            color: #4f8cff;
+            width: 20px;
+        }
+
+        .nav-item span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            padding: 2rem;
+            flex: 1;
+        }
+
+        .content-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        }
+
+        .content-header h2 {
+            color: #4f8cff;
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            padding: 0.8rem;
+            border-radius: 12px;
+            color: white;
+        }
+
+        .stat-card-icon.users {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+
+        .stat-card-icon.quizzes {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .stat-card-icon.questions {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .stat-card-icon.results {
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+        }
+
+        .stat-card h3 {
+            color: #333;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4f8cff;
+            margin: 0.5rem 0;
+        }
+
+        .stat-card .stat-change {
+            font-size: 0.9rem;
+            color: #28a745;
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title {
+            color: #4f8cff;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 140, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #51cf66, #37b24d);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .data-table tr:hover {
+            background: rgba(79, 140, 255, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f8cff;
+            box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .search-box {
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-tab {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1><i class="fas fa-crown"></i> SuperAdmin</h1>
+                <p>System Administrator Panel</p>
+            </div>
+
+            <div class="nav-menu">
+                <div class="nav-item active" data-section="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-section="users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </div>
+                <div class="nav-item" data-section="quizzes">
+                    <i class="fas fa-tasks"></i>
+                    <span>Quiz Management</span>
+                </div>
+                <div class="nav-item" data-section="system">
+                    <i class="fas fa-cog"></i>
+                    <span>System Settings</span>
+                </div>
+                <div class="nav-item" data-section="logs">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Activity Logs</span>
+                </div>
+                <div class="nav-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Content Header -->
+            <div class="content-header">
+                <h2 id="page-title">Super Admin Dashboard</h2>
+                <p id="page-subtitle">Complete system overview and management</p>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div class="content-section active" id="dashboard-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon users">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3>Total Users</h3>
+                        </div>
+                        <div class="stat-number" id="total-users">0</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <div class="stat-card-icon quizzes">
+                                <i class="fas fa-clipboard-question"></i>
+                            </div>
+                            <h3>Total Quizzes</h3>
+                        </div>
+                        <div class="stat-number" id="total-quizzes">0</div>
+                    </div>
+                </div>
+
+                <div class="content-section active">
+                    <div class="section-header">
+                        <h3 class="section-title">System Overview</h3>
+                    </div>
+                    <p>Welcome to the Super Admin Dashboard. From here you can manage all aspects of the QuizMaster
+                        application including users, quizzes, questions, and system settings.</p>
+                </div>
+            </div>
+
+            <!-- Users Management Section -->
+            <div class="content-section" id="users-section">
+                <div class="section-header">
+                    <h3 class="section-title">User Management</h3>
+                    <button class="btn" onclick="openModal('user-modal')">
+                        <i class="fas fa-user-plus"></i> Add New User
+                    </button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Search users..." id="users-search">
+                </div>
+
+                <div class="filter-tabs">
+                    <div class="filter-tab active" data-filter="all">All Users</div>
+                    <div class="filter-tab" data-filter="active">Active</div>
+                    <div class="filter-tab" data-filter="blocked">Blocked</div>
+                    <div class="filter-tab" data-filter="admins">Admins</div>
+                </div>
+
+                <table class="data-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Quiz Management Section -->
+            <div class="content-section" id="quizzes-section">
+                <div class="section-header">
+                    <h3 class="section-title">Quiz Management</h3>
+                    <button class="btn" onclick="openCreateQuizModal()">
+                        <i class="fas fa-plus"></i> Create New Quiz
+                    </button>
+                </div>
+
+                <div class="search-box">
+                    <input type="text" placeholder="Search quizzes..." id="quizzes-search">
+                </div>
+
+                <table class="data-table" id="quizzes-table">
+                    <thead>
+                        <tr>
+                            <th>Quiz ID</th>
+                            <th>Title</th>
+                            <th>Creator</th>
+                            <th>Questions</th>
+                            <th>Participants</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quizzes-table-body">
+                        <!-- Quizzes will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- System Settings Section -->
+            <div class="content-section" id="system-section">
+                <div class="section-header">
+                    <h3 class="section-title">System Settings</h3>
+                </div>
+
+                <div class="form-group">
+                    <label>JWT Token Expiration (hours)</label>
+                    <input type="number" class="form-control" value="1" id="jwt-expiration">
+                </div>
+
+                <div class="form-group">
+                    <label>Max Quiz Duration (minutes)</label>
+                    <input type="number" class="form-control" value="60" id="max-quiz-duration">
+                </div>
+
+                <div class="form-group">
+                    <label>Default Questions per Quiz</label>
+                    <input type="number" class="form-control" value="10" id="default-questions">
+                </div>
+
+                <button class="btn">Save Settings</button>
+            </div>
+
+            <!-- Activity Logs Section -->
+            <div class="content-section" id="logs-section">
+                <div class="section-header">
+                    <h3 class="section-title">Activity Logs</h3>
+                    <button class="btn" onclick="clearLogs()">
+                        <i class="fas fa-trash"></i> Clear Logs
+                    </button>
+                </div>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>User</th>
+                            <th>Action</th>
+                            <th>Resource</th>
+                            <th>IP Address</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logs-table-body">
+                        <!-- Logs will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('user-modal')">&times;</span>
+            <h3>Add New User</h3>
+            <form id="user-form">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" name="username" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn">Create User</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="edit-user-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 500px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px;">
+            <span class="close" onclick="closeModal('edit-user-modal')"
+                style="color: #ff6b6b; font-size: 1.5rem;">&times;</span>
+            <h3 id="edit-user-title"
+                style="color: #00f2fe; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);">
+                Edit User</h3>
+            <form id="edit-user-form">
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Username</label>
+                    <input type="text" id="edit-username" class="form-control" required
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Email</label>
+                    <input type="email" id="edit-email" class="form-control" required
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">New Password (Leave empty to keep current)</label>
+                    <input type="password" id="edit-password" class="form-control"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" onclick="closeModal('edit-user-modal')" class="btn"
+                        style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn"
+                        style="background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Update
+                        User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div id="question-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('question-modal')">&times;</span>
+            <h3>Add New Question</h3>
+            <form id="question-form">
+                <div class="form-group">
+                    <label>Question</label>
+                    <textarea class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <input type="text" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Difficulty</label>
+                    <select class="form-control">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Add Question</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Quiz Modals -->
+    <!-- Add Quiz Modal -->
+    <div id="quiz-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 600px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px;">
+            <span class="close" onclick="closeModal('quiz-modal')"
+                style="color: #ff6b6b; font-size: 1.5rem;">&times;</span>
+            <h3
+                style="color: #00f2fe; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);">
+                Add New Quiz</h3>
+            <form id="quiz-form">
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Quiz Title</label>
+                    <input type="text" id="quiz-title" class="form-control" required
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Description</label>
+                    <textarea id="quiz-description" class="form-control" rows="3"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Category</label>
+                    <input type="text" id="quiz-category" class="form-control"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Difficulty Level</label>
+                    <select id="quiz-difficulty" class="form-control"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                        <option value="easy" style="background: #2d3748; color: white;">Easy</option>
+                        <option value="medium" style="background: #2d3748; color: white;">Medium</option>
+                        <option value="hard" style="background: #2d3748; color: white;">Hard</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Time Limit (minutes)</label>
+                    <input type="number" id="quiz-time-limit" class="form-control" min="1" max="300" value="30"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                    <input type="checkbox" id="quiz-active" checked style="transform: scale(1.3); cursor: pointer;">
+                    <label for="quiz-active" style="color: #51cf66; font-weight: bold; cursor: pointer;">
+                        ✅ Quiz is Active
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" onclick="closeModal('quiz-modal')" class="btn"
+                        style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn"
+                        style="background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Create
+                        Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Quiz Modal -->
+    <div id="edit-quiz-modal" class="modal">
+        <div class="modal-content"
+            style="max-width: 600px; background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px;">
+            <span class="close" onclick="closeModal('edit-quiz-modal')"
+                style="color: #ff6b6b; font-size: 1.5rem;">&times;</span>
+            <h3 id="edit-quiz-modal-title"
+                style="color: #00f2fe; text-align: center; margin-bottom: 20px; text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);">
+                Edit Quiz</h3>
+            <p style="text-align: center; color: #51cf66; font-size: 0.9em; margin-bottom: 20px;">
+                <i class="fas fa-shield-alt"></i> As an administrator, you can edit any quiz in the system
+            </p>
+            <form id="edit-quiz-form">
+                <input type="hidden" id="edit-quiz-id" name="quizId">
+
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Quiz Title</label>
+                    <input type="text" id="edit-quiz-title" class="form-control" required
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Description</label>
+                    <textarea id="edit-quiz-description" class="form-control" rows="3"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px; resize: vertical;"></textarea>
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Category</label>
+                    <input type="text" id="edit-quiz-category" class="form-control"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Difficulty Level</label>
+                    <select id="edit-quiz-difficulty" class="form-control"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                        <option value="easy" style="background: #2d3748; color: white;">Easy</option>
+                        <option value="medium" style="background: #2d3748; color: white;">Medium</option>
+                        <option value="hard" style="background: #2d3748; color: white;">Hard</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label style="color: #ffe066; font-weight: 600;">Time Limit (minutes)</label>
+                    <input type="number" id="edit-quiz-time-limit" class="form-control" min="1" max="300"
+                        style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: white; padding: 10px; border-radius: 8px;">
+                </div>
+                <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                    <input type="checkbox" id="edit-quiz-active" style="transform: scale(1.3); cursor: pointer;">
+                    <label for="edit-quiz-active" style="color: #51cf66; font-weight: bold; cursor: pointer;">
+                        ✅ Quiz is Active
+                    </label>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                    <button type="button" onclick="closeModal('edit-quiz-modal')" class="btn"
+                        style="background: #666; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;">Cancel</button>
+                    <button type="submit" class="btn"
+                        style="background: linear-gradient(90deg, #51cf66 0%, #37b24d 100%); color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold;">Update
+                        Quiz</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/heartbeat.js"></script>
+    <script src="js/super-admin.js"></script>
+</body>
+
+</html>

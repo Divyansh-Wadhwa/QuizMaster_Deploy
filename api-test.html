@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App - API Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3d9ce; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f4b6ba; }
+        .loading { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee2ea; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Quiz Application - API Connection Test</h1>
+    <p>This page tests the connection to your Render microservices.</p>
+    
+    <button onclick="testAllAPIs()">Test All APIs</button>
+    <button onclick="testAuthAPI()">Test Auth API</button>
+    <button onclick="testQuestionAPI()">Test Question API</button>
+    <button onclick="testResultAPI()">Test Result API</button>
+    
+    <div id="results"></div>
+    
+    <hr>
+    <h2>🎮 Ready to Use Your Quiz App?</h2>
+    <a href="index.html" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Go to Quiz App</a>
+
+    <script src="js/config.js"></script>
+    <script>
+        function addResult(message, type) {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+
+        async function testAPI(name, url) {
+            addResult(`🔄 Testing ${name}...`, 'loading');
+            try {
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (response.ok) {
+                    addResult(`✅ ${name} - Connection successful! (${response.status})`, 'success');
+                    return true;
+                } else {
+                    addResult(`⚠️ ${name} - Server responded with ${response.status}`, 'error');
+                    return false;
+                }
+            } catch (error) {
+                addResult(`❌ ${name} - Connection failed: ${error.message}`, 'error');
+                return false;
+            }
+        }
+
+        async function testAuthAPI() {
+            await testAPI('Auth Service', `${window.AUTH_API_BASE}/admin/users/count`);
+        }
+
+        async function testQuestionAPI() {
+            await testAPI('Question Bank Service', `${window.QUESTION_API_BASE}`);
+        }
+
+        async function testResultAPI() {
+            await testAPI('Result Service', `${window.RESULT_API_BASE}`);
+        }
+
+        async function testAllAPIs() {
+            document.getElementById('results').innerHTML = '';
+            addResult(`🔧 Configuration Detected:`, 'loading');
+            addResult(`Auth API: ${window.AUTH_API_BASE}`, 'loading');
+            addResult(`Question API: ${window.QUESTION_API_BASE}`, 'loading');
+            addResult(`Result API: ${window.RESULT_API_BASE}`, 'loading');
+            
+            const results = await Promise.all([
+                testAuthAPI(),
+                testQuestionAPI(),
+                testResultAPI()
+            ]);
+            
+            const successCount = results.filter(r => r).length;
+            const message = `🎯 Test Complete: ${successCount}/3 services are working`;
+            addResult(message, successCount === 3 ? 'success' : 'error');
+        }
+
+        // Auto-test on page load
+        window.onload = () => {
+            setTimeout(testAllAPIs, 1000);
+        };
+    </script>
+</body>
+</html>
